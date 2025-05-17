@@ -1,5 +1,7 @@
+import * as Haptics from 'expo-haptics';
 import { useState } from "react";
 import { View } from "react-native";
+import { Cover } from "../components/organisms/cover";
 import { Reader } from "../components/organisms/reader";
 import { TextChunk } from "../types/Book";
 
@@ -69,7 +71,20 @@ export const story: TextChunk[] = [
 ];
 
 export default function Index() {
-  const [chunks, setChunks] = useState<TextChunk[]>(story);
+  const [chunks] = useState<TextChunk[]>(story);
+  const [isReading, setIsReading] = useState(false);
+
+  const sequenceHaptics = async (iterations: number) => {
+    for (let i = 0; i < iterations; i++) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      await new Promise(resolve => setTimeout(resolve, 100 / (i + 1)));
+    }
+  };
+
+  const handleStartReading = async () => {
+    sequenceHaptics(10);
+    setIsReading(true);
+  };
 
   return (
     <View
@@ -80,7 +95,7 @@ export default function Index() {
           padding: 16,
         }}
     >
-      <Reader chunks={chunks} />
+      {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" onStartReading={handleStartReading} />}
     </View>
   );
 }
