@@ -1,10 +1,10 @@
 import { StyleSheet, Text } from 'react-native';
 
-interface ParagraphProps {
+interface ParagraphPreviewProps {
   text: string;
 }
 
-export function Paragraph({ text }: ParagraphProps) {
+export function ParagraphPreview({ text }: ParagraphPreviewProps) {
   return <Text style={styles.paragraph}>{text}</Text>;
 }
 
