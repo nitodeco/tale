@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, GestureResponderEvent, PanResponder, PanResponderGestureState, Text, TouchableOpacity, View } from 'react-native';
@@ -11,16 +10,17 @@ interface CarouselProps {
 export function Carousel({ items }: CarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isDebouncing, setIsDebouncing] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   
   const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => !isTransitioning,
-    onMoveShouldSetPanResponder: () => !isTransitioning,
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
     
     onPanResponderMove: () => {},
     
     onPanResponderRelease: (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-      if (isTransitioning) return;
+      if (isDebouncing) return;
       
       if (Math.abs(gestureState.dy) > 20) {
         if (gestureState.dy > 0 && currentIndex > 0) {
@@ -31,25 +31,60 @@ export function Carousel({ items }: CarouselProps) {
           console.log(`Swiping to next from ${currentIndex} to ${currentIndex + 1}`);
           handleNext();
         }
+      } else if (Math.abs(gestureState.dx) < 10 && Math.abs(gestureState.dy) < 10) {
+        handleTap();
       }
     },
   });
 
+  const debounce = useCallback(() => {
+    setIsDebouncing(true);
+    setTimeout(() => {
+      setIsDebouncing(false);
+    }, 150);
+  }, []);
+
+  const handleTap = useCallback(() => {
+    if (currentIndex < items.length - 1 && !isDebouncing) {
+      console.log('Tapped, navigating to next item');
+      if (isTransitioning) {
+        fadeAnim.stopAnimation();
+        setIsTransitioning(false);
+      }
+      handleNext();
+      debounce();
+    }
+  }, [currentIndex, isTransitioning, items.length, isDebouncing, fadeAnim, debounce]);
+
   const handlePrevious = useCallback(() => {
-    if (currentIndex > 0 && !isTransitioning) {
+    if (currentIndex > 0 && !isDebouncing) {
       const newIndex = currentIndex - 1;
       console.log(`Navigate to previous: ${currentIndex} -> ${newIndex}`);
+      
+      if (isTransitioning) {
+        fadeAnim.stopAnimation();
+        setIsTransitioning(false);
+      }
+      
       animateTransition(newIndex);
+      debounce();
     }
-  }, [currentIndex, isTransitioning]);
+  }, [currentIndex, isTransitioning, isDebouncing, fadeAnim, debounce]);
 
   const handleNext = useCallback(() => {
-    if (currentIndex < items.length - 1 && !isTransitioning) {
+    if (currentIndex < items.length - 1 && !isDebouncing) {
       const newIndex = currentIndex + 1;
       console.log(`Navigate to next: ${currentIndex} -> ${newIndex}`);
+      
+      if (isTransitioning) {
+        fadeAnim.stopAnimation();
+        setIsTransitioning(false);
+      }
+      
       animateTransition(newIndex);
+      debounce();
     }
-  }, [currentIndex, isTransitioning, items.length]);
+  }, [currentIndex, isTransitioning, items.length, isDebouncing, fadeAnim, debounce]);
 
   const triggerTransitionHaptic = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -112,22 +147,26 @@ export function Carousel({ items }: CarouselProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.navButton, styles.topButton, !hasPrevious && styles.disabledButton]}
+        style={{ backgroundColor: 'transparent' }}
         onPress={handlePrevious}
-        disabled={!hasPrevious || isTransitioning}
-      >
-        <Ionicons name="chevron-up" size={24} color={hasPrevious ? "#333" : "#ccc"} />
-      </TouchableOpacity>
+        disabled={!hasPrevious || isDebouncing}
+      />
       
       <View 
         {...panResponder.panHandlers}
         style={styles.previewContainer}
       >
-        {hasPrevious && (
-          <Text style={styles.previewText}>
-            {getPreviousPreview()}
-          </Text>
-        )}
+        <View style={styles.previewSpace}>
+          {hasPrevious ? (
+            <Text style={styles.previewText}>
+              {getPreviousPreview()}
+            </Text>
+          ) : (
+            <Text style={[styles.previewText, { color: 'transparent' }]}>
+              Start
+            </Text>
+          )}
+        </View>
 
         <Animated.View style={[styles.contentContainer, { opacity: fadeAnim }]}>
           {items.length > 0 ? (
@@ -137,20 +176,24 @@ export function Carousel({ items }: CarouselProps) {
           )}
         </Animated.View>
 
-        {hasNext && (
-          <Text style={styles.previewText}>
-            {getNextPreview()}
-          </Text>
-        )}
+        <View style={styles.previewSpace}>
+          {hasNext ? (
+            <Text style={styles.previewText}>
+              {getNextPreview()}
+            </Text>
+          ) : (
+            <Text style={[styles.previewText, { color: 'transparent' }]}>
+              End
+            </Text>
+          )}
+        </View>
       </View>
       
       <TouchableOpacity
-        style={[styles.navButton, styles.bottomButton, !hasNext && styles.disabledButton]}
+        style={{ backgroundColor: 'transparent' }}
         onPress={handleNext}
-        disabled={!hasNext || isTransitioning}
-      >
-        <Ionicons name="chevron-down" size={24} color={hasNext ? "#333" : "#ccc"} />
-      </TouchableOpacity>
+        disabled={!hasNext || isDebouncing}
+      />
     </View>
   );
 }

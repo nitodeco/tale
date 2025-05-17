@@ -16,6 +16,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
   },
+  previewSpace: {
+    width: '100%',
+    minHeight: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   contentContainer: {
     minHeight: 100,
     justifyContent: 'center',
