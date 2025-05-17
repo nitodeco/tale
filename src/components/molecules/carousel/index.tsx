@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, GestureResponderEvent, PanResponder, PanResponderGestureState, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
@@ -12,7 +13,6 @@ export function Carousel({ items }: CarouselProps) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   
-  // Create new panResponder every time currentIndex changes to ensure it has latest value
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => !isTransitioning,
     onMoveShouldSetPanResponder: () => !isTransitioning,
@@ -22,17 +22,11 @@ export function Carousel({ items }: CarouselProps) {
     onPanResponderRelease: (e: GestureResponderEvent, gestureState: PanResponderGestureState) => {
       if (isTransitioning) return;
       
-      // Debug the values
-      console.log(`Gesture detected: dy=${gestureState.dy}, currentIndex=${currentIndex}`);
-      
-      // Check for vertical movement
       if (Math.abs(gestureState.dy) > 20) {
-        // Swipe down -> previous
         if (gestureState.dy > 0 && currentIndex > 0) {
           console.log(`Swiping to previous from ${currentIndex} to ${currentIndex - 1}`);
           handlePrevious();
         } 
-        // Swipe up -> next
         else if (gestureState.dy < 0 && currentIndex < items.length - 1) {
           console.log(`Swiping to next from ${currentIndex} to ${currentIndex + 1}`);
           handleNext();
@@ -57,49 +51,46 @@ export function Carousel({ items }: CarouselProps) {
     }
   }, [currentIndex, isTransitioning, items.length]);
 
+  const triggerTransitionHaptic = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
   const animateTransition = useCallback((newIndex: number) => {
-    // Guard against invalid indices
     if (newIndex < 0 || newIndex >= items.length) {
       console.error(`Invalid index: ${newIndex}`);
       return;
     }
 
-    console.log(`Starting transition to index: ${newIndex}`);
+    console.log(`Going to index: ${newIndex}`);
     
-    // Set transitioning state to prevent multiple animations at once
     setIsTransitioning(true);
+    triggerTransitionHaptic();
     
-    // Fade out
     Animated.timing(fadeAnim, {
       toValue: 0,
-      duration: 100,
+      duration: 50,
       useNativeDriver: true,
     }).start(() => {
-      // Update index
-      console.log(`Setting index to: ${newIndex}`);
       setCurrentIndex(newIndex);
       
-      // Fade in
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 100,
+        duration: 50,
         useNativeDriver: true,
       }).start(() => {
-        // Animation complete
         setIsTransitioning(false);
-        console.log(`Transition complete, now at index: ${newIndex}`);
+        console.log(`Current index: ${newIndex}`);
       });
     });
-  }, [fadeAnim, items.length]);
+  }, [fadeAnim, items.length, triggerTransitionHaptic]);
 
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < items.length - 1;
 
-  // Get preview text for previous and next items
   const getPreviousPreview = () => {
     if (!hasPrevious) return null;
     const prevText = items[currentIndex - 1];
-    // Take last 30 characters or the whole text if shorter
+
     return prevText.length > 30 
       ? `...${prevText.slice(-30)}` 
       : prevText;
@@ -108,13 +99,12 @@ export function Carousel({ items }: CarouselProps) {
   const getNextPreview = () => {
     if (!hasNext) return null;
     const nextText = items[currentIndex + 1];
-    // Take first 30 characters or the whole text if shorter
+
     return nextText.length > 30 
       ? `${nextText.slice(0, 30)}...` 
       : nextText;
   };
 
-  // Debug logging
   useEffect(() => {
     console.log(`Current index: ${currentIndex}, Can go previous: ${hasPrevious}, Can go next: ${hasNext}`);
   }, [currentIndex, hasPrevious, hasNext]);
