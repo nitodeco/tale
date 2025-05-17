@@ -1,0 +1,16 @@
+{
+  "book": {
+    "title": "xyz",
+    "author": "abc",
+    "chapters": [
+      {
+        "chunks": [
+          {
+            "text": "Lorem ipsum",
+            "word_count": 42
+          }
+        ]
+      }
+    ]
+  }
+}
