@@ -1,13 +1,8 @@
 export type TextChunk = string;
 
-export type Paragraph = {
-  text: TextChunk;
-  wordCount: number;
-}
-
 export type Chapter = {
   title: string;
-  paragraphs: Paragraph[];
+  paragraphs: TextChunk[];
 }
 
 export type Book = {
