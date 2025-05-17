@@ -1,11 +1,11 @@
 import { StyleSheet, Text } from 'react-native';
 
-interface ParagraphPreviewProps {
+interface ParagraphProps {
   text: string;
 }
 
-export function ParagraphPreview({ text }: ParagraphPreviewProps) {
-  return <Text style={styles.paragraph}>{text}</Text>;
+export function Paragraph({ text }: ParagraphProps) {
+  return <Text style={styles.paragraph}>{text}</Text>
 }
 
 const styles = StyleSheet.create({
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 24,
     color: '#333',
-    marginVertical: 8,
+    marginVertical: 32,
     paddingHorizontal: 16,
   },
 }); 
