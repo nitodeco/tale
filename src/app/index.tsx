@@ -70,6 +70,10 @@ export const story: TextChunk[] = [
   "They arrived in the early evening."
 ];
 
+const readingTimeMinutes = 3;
+const readingTimeSeconds = 58;
+const readingTimeString = `${readingTimeMinutes}:${readingTimeSeconds}`;
+
 export default function Index() {
   const [chunks] = useState<TextChunk[]>(story);
   const [isReading, setIsReading] = useState(false);
@@ -93,9 +97,11 @@ export default function Index() {
           justifyContent: "center",
           alignItems: "center",
           padding: 16,
+          backgroundColor: "#FFF3DA",
+          zIndex: 1,
         }}
     >
-      {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)} onFinish={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" onStartReading={handleStartReading} />}
+      {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)} onFinish={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" readingTimeString={readingTimeString} onStartReading={handleStartReading} />}
     </View>
   );
 }
