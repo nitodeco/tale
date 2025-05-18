@@ -1,8 +1,8 @@
-import { Dimensions, View } from "react-native";
+import { AppState, Dimensions, View } from "react-native";
 import styles from "./styles";
 
-import { useEffect } from "react";
-import Animated, { Easing, useAnimatedProps, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import { useCallback, useEffect } from "react";
+import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
 interface YarnProps {
@@ -16,7 +16,7 @@ interface YarnProps {
 
 const AnimatedPath = Animated.createAnimatedComponent(Path)
 
-const FIFTEEN_MINUTES = 15 * 60 * 100
+const FIFTEEN_MINUTES = 15 * 60 * 10
 
 export const Yarn = ({
   width = Dimensions.get("window").width - 40,
@@ -56,18 +56,32 @@ export const Yarn = ({
     }
   })
 
-  useEffect(() => {
-    pathLength.value = perimeter
+  const startAnimation = useCallback(() => {
+    animationProgress.value = 0;
+    animationProgress.value = withTiming(1, {
+      duration: FIFTEEN_MINUTES,
+      easing: Easing.linear,
+    }, () => {
+      animationProgress.value = 1;
+    });
+  }, [animationProgress]);
 
-    animationProgress.value = withRepeat(
-      withTiming(1, {
-        duration: FIFTEEN_MINUTES,
-        easing: Easing.linear,
-      }),
-      -1,
-      false,
-    )
-  }, [animationProgress, pathLength, perimeter])
+  useEffect(() => {
+    pathLength.value = perimeter;
+    startAnimation();
+
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+      } else if (nextAppState === 'active') {
+        animationProgress.value = 0;
+        startAnimation();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [animationProgress, pathLength, perimeter, startAnimation]);
 
   return (
     <View style={[styles.container, { width, height, borderRadius, backgroundColor }]}>
