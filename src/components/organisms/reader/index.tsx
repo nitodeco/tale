@@ -1,8 +1,9 @@
+import { Yarn } from '@/src/components/molecules/yarn';
 import { TextChunk } from '@/src/types/Book';
 import { calculateHapticIntensity } from '@/src/utils/haptics';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, GestureResponderEvent, PanResponder, PanResponderGestureState, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, GestureResponderEvent, PanResponder, PanResponderGestureState, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
 
 interface ReaderProps {
@@ -180,6 +181,14 @@ export function Reader({ items, onReturnToCover, onFinish }: ReaderProps) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.yarnContainer}>
+        <Yarn 
+          width={Dimensions.get("window").width * 0.95}
+          height={Dimensions.get("window").height * 0.8}
+          backgroundColor="transparent"
+        />
+      </View>
+      
       <TouchableOpacity
         style={{ backgroundColor: 'transparent' }}
         onPress={handlePrevious}
