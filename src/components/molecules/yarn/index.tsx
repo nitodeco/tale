@@ -22,9 +22,9 @@ export const Yarn = ({
   width = Dimensions.get("window").width - 40,
   height = 200,
   borderRadius = 12,
-  lineColor = "#000",
+  lineColor = "#6D3D14",
   lineWidth = 1,
-  backgroundColor = "#FFF",
+  backgroundColor = "transparent",
 }: YarnProps) => {
   const perimeter = 2 * (width + height)
 
@@ -123,7 +123,7 @@ export const Yarn = ({
   }, [animationProgress, pathLength, perimeter, startAnimation]);
 
   return (
-    <View style={[styles.container, { width, height, borderRadius, backgroundColor }]}>
+    <View style={[styles.container, { width, height, borderRadius, backgroundColor, zIndex: 2 }]}>
       <Svg width={width} height={height}>
         <AnimatedPath
           d={path}

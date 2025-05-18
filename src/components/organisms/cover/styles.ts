@@ -11,13 +11,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 42,
-    fontWeight: 'normal',
-    color: 'black',
+    fontWeight: 'bold',
+    color: '#6D3D14',
   },
   author: {
     fontSize: 18,
     fontWeight: '300',
-    color: 'black',
+    color: '#6D3D14',
   },
 }); 
 

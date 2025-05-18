@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   carousel: {
     fontSize: 24,
     lineHeight: 24,
-    color: '#333',
+    color: '#6D3D14',
     marginVertical: 32,
     paddingHorizontal: 16,
     textAlign: 'center',
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   previewText: {
     fontSize: 16,
     lineHeight: 20,
-    color: '#AAAAAA',
+    color: '#E39F64',
     paddingHorizontal: 16,
     textAlign: 'center',
     marginVertical: 8,
@@ -56,25 +56,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#999',
-  },
-  navButton: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
-    zIndex: 10,
-  },
-  topButton: {
-    top: 0,
-  },
-  bottomButton: {
-    bottom: 0,
-  },
-  disabledButton: {
-    backgroundColor: '#f8f8f8',
   },
 }); 
 

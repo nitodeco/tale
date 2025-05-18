@@ -93,6 +93,8 @@ export default function Index() {
           justifyContent: "center",
           alignItems: "center",
           padding: 16,
+          backgroundColor: "#FFF3DA",
+          zIndex: 1,
         }}
     >
       {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)} onFinish={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" onStartReading={handleStartReading} />}
