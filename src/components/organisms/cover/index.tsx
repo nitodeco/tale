@@ -1,5 +1,5 @@
+import { AppButton } from "@/src/components/atoms/button";
 import { Text, View } from "react-native";
-import { AppButton } from "../../atoms/button";
 import styles from "./styles";
 
 interface CoverProps {
