@@ -5,17 +5,21 @@ import styles from "./styles";
 interface CoverProps {
   title: string;
   author: string;
+  readingTimeString: string;
   onStartReading: () => void;
 }
 
-export function Cover({ title, author, onStartReading }: CoverProps) {
+export function Cover({ title, author, readingTimeString, onStartReading }: CoverProps) {
   return (
     <View style={styles.container}>
       <View>
         <Text style={styles.author}>{author}</Text>
         <Text style={styles.title}>{title}</Text>
       </View>
-      <AppButton text="Read" onPress={onStartReading} />
+      <View style={styles.buttonContainer}>
+        <Text style={styles.readingTime}>~ {readingTimeString} min</Text>
+        <AppButton text="Read" onPress={onStartReading} />
+      </View>
     </View>
   )
 }
