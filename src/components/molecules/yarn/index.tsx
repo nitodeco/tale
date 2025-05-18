@@ -1,8 +1,14 @@
-import { AppState, Dimensions, View } from "react-native";
+import { AppState, AppStateStatus, Dimensions, View } from "react-native";
 import styles from "./styles";
 
-import { useCallback, useEffect } from "react";
-import Animated, { Easing, useAnimatedProps, useSharedValue, withTiming } from "react-native-reanimated";
+import { useCallback, useEffect, useRef } from "react";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedProps,
+  useSharedValue,
+  withTiming
+} from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 
 interface YarnProps {
@@ -27,8 +33,9 @@ export const Yarn = ({
   backgroundColor = "transparent",
 }: YarnProps) => {
   const perimeter = 2 * (width + height)
+  const appState = useRef<AppStateStatus>(AppState.currentState);
 
-    const createPath = () => {
+  const createPath = () => {
     const padding = 8
     const adjustedWidth = width - padding
     const adjustedHeight = height - padding
@@ -95,32 +102,38 @@ export const Yarn = ({
     }
   })
 
-  const startAnimation = useCallback(() => {
+  const resetAndStartAnimation = useCallback(() => {
+    cancelAnimation(animationProgress);
+    
+
     animationProgress.value = 0;
+
     animationProgress.value = withTiming(1, {
       duration: FIFTEEN_MINUTES,
       easing: Easing.linear,
-    }, () => {
-      animationProgress.value = 1;
     });
   }, [animationProgress]);
 
   useEffect(() => {
     pathLength.value = perimeter;
-    startAnimation();
+    resetAndStartAnimation();
 
     const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-      } else if (nextAppState === 'active') {
-        animationProgress.value = 0;
-        startAnimation();
+      const wasInactive = appState.current === 'background' || appState.current === 'inactive';
+      const isNowActive = nextAppState === 'active';
+
+      if (isNowActive) {
+        resetAndStartAnimation();
       }
+
+      appState.current = nextAppState;
     });
 
     return () => {
+      cancelAnimation(animationProgress);
       subscription.remove();
     };
-  }, [animationProgress, pathLength, perimeter, startAnimation]);
+  }, [pathLength, perimeter, resetAndStartAnimation, animationProgress]);
 
   return (
     <View style={[styles.container, { width, height, borderRadius, backgroundColor, zIndex: 2 }]}>
