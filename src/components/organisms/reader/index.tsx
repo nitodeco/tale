@@ -8,9 +8,10 @@ import styles from './styles';
 interface ReaderProps {
   items: TextChunk[];
   onReturnToCover: () => void;
+  onFinish?: () => void;
 }
 
-export function Reader({ items, onReturnToCover }: ReaderProps) {
+export function Reader({ items, onReturnToCover, onFinish }: ReaderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isDebouncing, setIsDebouncing] = useState(false);
@@ -85,6 +86,27 @@ export function Reader({ items, onReturnToCover }: ReaderProps) {
     }, 150);
   }, []);
 
+  const onBookFinished = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    await new Promise(resolve => setTimeout(resolve, 75));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await new Promise(resolve => setTimeout(resolve, 75));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await new Promise(resolve => setTimeout(resolve, 75));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await new Promise(resolve => setTimeout(resolve, 75));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await new Promise(resolve => setTimeout(resolve, 150));
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    if (onFinish) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      onFinish();
+    }
+  }, [onFinish]);
+
   const handleNext = useCallback(() => {
     if (currentIndex < items.length - 1 && !isDebouncing) {
       const newIndex = currentIndex + 1;
@@ -97,8 +119,12 @@ export function Reader({ items, onReturnToCover }: ReaderProps) {
       
       animateTransition(newIndex);
       debounce();
+      
+      if (newIndex === items.length - 1) {
+        onBookFinished();
+      }
     }
-  }, [currentIndex, isTransitioning, items.length, isDebouncing, fadeAnim, debounce, animateTransition]);
+  }, [currentIndex, isTransitioning, items.length, isDebouncing, fadeAnim, debounce, animateTransition, onBookFinished]);
 
   const handleTap = useCallback(() => {
     if (currentIndex < items.length - 1 && !isDebouncing) {

@@ -95,7 +95,7 @@ export default function Index() {
           padding: 16,
         }}
     >
-      {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" onStartReading={handleStartReading} />}
+      {isReading ? <Reader items={chunks} onReturnToCover={() => setIsReading(false)} onFinish={() => setIsReading(false)}/> : <Cover title="Ask Miechka" author="Eugenia Kuznetsova" onStartReading={handleStartReading} />}
     </View>
   );
 }
